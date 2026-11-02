@@ -1,3 +1,4 @@
+import { CaptureItemForm } from "@/components/capture-item-form"
 import { InboxItemList } from "@/components/inbox-item-list"
 import { Separator } from "@/components/ui/separator"
 import { SidebarTrigger } from "@/components/ui/sidebar"
@@ -20,6 +21,7 @@ export default async function InboxPage() {
       </header>
 
       <main className="mx-auto flex w-full max-w-3xl flex-1 flex-col gap-6 p-6">
+        <CaptureItemForm />
         <InboxItemList items={items} />
       </main>
     </div>
