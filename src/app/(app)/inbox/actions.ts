@@ -1,7 +1,7 @@
 "use server"
 
 import { revalidatePath } from "next/cache"
-import { createItem } from "@/lib/items"
+import { createItem, getDefaultUser } from "@/lib/items"
 import { createItemSchema } from "@/lib/validations/item"
 
 export type CaptureFormState = {
@@ -58,7 +58,8 @@ export async function createItemAction(
   }
 
   try {
-    await createItem(parsed.data)
+    const user = await getDefaultUser()
+    await createItem(user.id, parsed.data)
     revalidatePath("/inbox")
     return {
       status: "success",

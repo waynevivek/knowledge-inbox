@@ -55,6 +55,6 @@ export const createItemSchema = z.discriminatedUnion("type", [
   createSnippetItemSchema,
 ])
 
-export type CreateUrlItemInput = z.infer<typeof createUrlItemSchema>
-export type CreateSnippetItemInput = z.infer<typeof createSnippetItemSchema>
-export type CreateItemInput = z.infer<typeof createItemSchema>
+export type CreateUrlItemInput = z.input<typeof createUrlItemSchema>
+export type CreateSnippetItemInput = z.input<typeof createSnippetItemSchema>
+export type CreateItemInput = z.input<typeof createItemSchema>

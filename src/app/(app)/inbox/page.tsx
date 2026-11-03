@@ -6,11 +6,12 @@ import { InboxItemList } from "@/components/inbox-item-list"
 import { Separator } from "@/components/ui/separator"
 import { SidebarTrigger } from "@/components/ui/sidebar"
 import { Skeleton } from "@/components/ui/skeleton"
-import { listInboxItems } from "@/lib/items"
+import { getDefaultUser, listInboxItems } from "@/lib/items"
 
 async function InboxItemsContent() {
   await connection()
-  const items = await listInboxItems()
+  const user = await getDefaultUser()
+  const items = await listInboxItems(user.id)
   return <InboxItemList items={items} />
 }
 
