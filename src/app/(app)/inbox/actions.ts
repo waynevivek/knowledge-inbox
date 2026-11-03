@@ -1,8 +1,14 @@
 "use server"
 
 import { revalidatePath } from "next/cache"
-import { createItem, getDefaultUser } from "@/lib/items"
-import { createItemSchema } from "@/lib/validations/item"
+import {
+  archiveItem,
+  createItem,
+  deleteItem,
+  getDefaultUser,
+  unarchiveItem,
+} from "@/lib/items"
+import { createItemSchema, itemIdSchema } from "@/lib/validations/item"
 
 export type CaptureFormState = {
   status: "idle" | "success" | "error"
@@ -13,6 +19,17 @@ export type CaptureFormState = {
     title?: string[]
   }
   submittedAt?: number
+}
+
+export type ItemMutationResult = {
+  ok: boolean
+  error?: string
+}
+
+function revalidateItemViews() {
+  revalidatePath("/inbox")
+  revalidatePath("/all")
+  revalidatePath("/archived")
 }
 
 export async function createItemAction(
@@ -60,7 +77,7 @@ export async function createItemAction(
   try {
     const user = await getDefaultUser()
     await createItem(user.id, parsed.data)
-    revalidatePath("/inbox")
+    revalidateItemViews()
     return {
       status: "success",
       submittedAt: Date.now(),
@@ -70,5 +87,68 @@ export async function createItemAction(
       status: "error",
       message: "Failed to save item. Please try again.",
     }
+  }
+}
+
+export async function archiveItemAction(
+  rawItemId: string
+): Promise<ItemMutationResult> {
+  const parsed = itemIdSchema.safeParse(rawItemId)
+  if (!parsed.success) {
+    return { ok: false, error: "Invalid item ID." }
+  }
+
+  try {
+    const user = await getDefaultUser()
+    const updated = await archiveItem(user.id, parsed.data)
+    if (!updated) {
+      return { ok: false, error: "Item not found." }
+    }
+    revalidateItemViews()
+    return { ok: true }
+  } catch {
+    return { ok: false, error: "Failed to archive item." }
+  }
+}
+
+export async function unarchiveItemAction(
+  rawItemId: string
+): Promise<ItemMutationResult> {
+  const parsed = itemIdSchema.safeParse(rawItemId)
+  if (!parsed.success) {
+    return { ok: false, error: "Invalid item ID." }
+  }
+
+  try {
+    const user = await getDefaultUser()
+    const updated = await unarchiveItem(user.id, parsed.data)
+    if (!updated) {
+      return { ok: false, error: "Item not found." }
+    }
+    revalidateItemViews()
+    return { ok: true }
+  } catch {
+    return { ok: false, error: "Failed to move item to inbox." }
+  }
+}
+
+export async function deleteItemAction(
+  rawItemId: string
+): Promise<ItemMutationResult> {
+  const parsed = itemIdSchema.safeParse(rawItemId)
+  if (!parsed.success) {
+    return { ok: false, error: "Invalid item ID." }
+  }
+
+  try {
+    const user = await getDefaultUser()
+    const deleted = await deleteItem(user.id, parsed.data)
+    if (!deleted) {
+      return { ok: false, error: "Item not found." }
+    }
+    revalidateItemViews()
+    return { ok: true }
+  } catch {
+    return { ok: false, error: "Failed to delete item." }
   }
 }
