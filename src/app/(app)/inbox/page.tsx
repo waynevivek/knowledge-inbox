@@ -1,4 +1,5 @@
 import { Suspense } from "react"
+import { redirect } from "next/navigation"
 import { connection } from "next/server"
 
 import { CaptureItemForm } from "@/components/capture-item-form"
@@ -6,11 +7,16 @@ import { InboxItemList } from "@/components/inbox-item-list"
 import { Separator } from "@/components/ui/separator"
 import { SidebarTrigger } from "@/components/ui/sidebar"
 import { Skeleton } from "@/components/ui/skeleton"
+import { requireUser } from "@/lib/auth"
 import { listInboxItems } from "@/lib/items"
 
 async function InboxItemsContent() {
   await connection()
-  const items = await listInboxItems()
+  const user = await requireUser().catch(() => null)
+  if (!user) {
+    redirect("/sign-in")
+  }
+  const items = await listInboxItems(user.id)
   return <InboxItemList items={items} />
 }
 

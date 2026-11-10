@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest"
-import { createItemSchema } from "@/lib/validations/item"
+import { createItemSchema, itemIdSchema } from "@/lib/validations/item"
 
 describe("createItemSchema discriminated union", () => {
   describe("URL branch", () => {
@@ -83,6 +83,14 @@ describe("createItemSchema discriminated union", () => {
         })
         expect(result.success).toBe(false)
       }
+    })
+  })
+
+  describe("itemIdSchema", () => {
+    it("accepts non-empty item IDs and rejects empty or whitespace strings", () => {
+      expect(itemIdSchema.safeParse("cmm123456").success).toBe(true)
+      expect(itemIdSchema.safeParse("").success).toBe(false)
+      expect(itemIdSchema.safeParse("   ").success).toBe(false)
     })
   })
 })

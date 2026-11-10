@@ -5,10 +5,16 @@ export default defineConfig({
   test: {
     environment: "node",
     include: ["src/**/*.test.ts"],
+    fileParallelism: false,
   },
   resolve: {
     alias: {
       "@": path.resolve(import.meta.dirname, "./src"),
+      "server-only": path.resolve(
+        import.meta.dirname,
+        "./src/test/empty-module.ts"
+      ),
     },
   },
 })
+

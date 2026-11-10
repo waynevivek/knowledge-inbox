@@ -23,3 +23,8 @@ export function getDb(): PrismaClient {
   }
   return globalForPrisma.prisma
 }
+
+export function resetDbForTesting(): void {
+  globalForPrisma.prisma = undefined
+}
+
