@@ -14,7 +14,10 @@ export async function getDefaultUser(): Promise<User> {
   return db.user.upsert({
     where: { email: DEFAULT_USER_EMAIL },
     update: {},
-    create: { email: DEFAULT_USER_EMAIL },
+    create: {
+      email: DEFAULT_USER_EMAIL,
+      name: "Default User",
+    },
   })
 }
 

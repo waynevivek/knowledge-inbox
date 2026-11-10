@@ -50,10 +50,10 @@ describe("items data-access layer: two-user isolation and item lifecycle", () =>
     await db.user.deleteMany()
 
     const userA = await db.user.create({
-      data: { email: "user-a@example.test" },
+      data: { email: "user-a@example.test", name: "User A" },
     })
     const userB = await db.user.create({
-      data: { email: "user-b@example.test" },
+      data: { email: "user-b@example.test", name: "User B" },
     })
 
     userAId = userA.id

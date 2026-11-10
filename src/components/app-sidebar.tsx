@@ -5,6 +5,7 @@ import Link from "next/link"
 import { usePathname } from "next/navigation"
 import { Archive, BookMarked, Inbox, Layers } from "lucide-react"
 
+import { SidebarUserNav } from "@/components/sidebar-user-nav"
 import { ThemeToggle } from "@/components/theme-toggle"
 import {
   Sidebar,
@@ -92,6 +93,7 @@ export function AppSidebar(props: React.ComponentProps<typeof Sidebar>) {
       </SidebarContent>
 
       <SidebarFooter className="border-t border-sidebar-border">
+        <SidebarUserNav />
         <ThemeToggle />
       </SidebarFooter>
 
