@@ -1,25 +1,11 @@
 import "server-only"
 
-import { ItemStatus, ItemType, type Item, type User } from "@prisma/client"
+import { ItemStatus, ItemType, type Item } from "@prisma/client"
 import { getDb } from "@/lib/db"
 import {
   createItemSchema,
   type CreateItemInput,
 } from "@/lib/validations/item"
-
-export const DEFAULT_USER_EMAIL = "default@knowledge-inbox.local"
-
-export async function getDefaultUser(): Promise<User> {
-  const db = getDb()
-  return db.user.upsert({
-    where: { email: DEFAULT_USER_EMAIL },
-    update: {},
-    create: {
-      email: DEFAULT_USER_EMAIL,
-      name: "Default User",
-    },
-  })
-}
 
 export async function listInboxItems(userId: string): Promise<Item[]> {
   const db = getDb()

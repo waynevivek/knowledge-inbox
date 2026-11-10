@@ -1,15 +1,20 @@
 import { Suspense } from "react"
+import { redirect } from "next/navigation"
 import { connection } from "next/server"
 
 import { InboxItemList } from "@/components/inbox-item-list"
 import { Separator } from "@/components/ui/separator"
 import { SidebarTrigger } from "@/components/ui/sidebar"
 import { Skeleton } from "@/components/ui/skeleton"
-import { getDefaultUser, listArchivedItems } from "@/lib/items"
+import { requireUser } from "@/lib/auth"
+import { listArchivedItems } from "@/lib/items"
 
 async function ArchivedItemsContent() {
   await connection()
-  const user = await getDefaultUser()
+  const user = await requireUser().catch(() => null)
+  if (!user) {
+    redirect("/sign-in")
+  }
   const items = await listArchivedItems(user.id)
   return <InboxItemList items={items} view="archived" />
 }

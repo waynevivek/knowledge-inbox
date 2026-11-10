@@ -1,11 +1,11 @@
 "use server"
 
 import { revalidatePath } from "next/cache"
+import { requireUser } from "@/lib/auth"
 import {
   archiveItem,
   createItem,
   deleteItem,
-  getDefaultUser,
   unarchiveItem,
 } from "@/lib/items"
 import { createItemSchema, itemIdSchema } from "@/lib/validations/item"
@@ -75,7 +75,7 @@ export async function createItemAction(
   }
 
   try {
-    const user = await getDefaultUser()
+    const user = await requireUser()
     await createItem(user.id, parsed.data)
     revalidateItemViews()
     return {
@@ -99,7 +99,7 @@ export async function archiveItemAction(
   }
 
   try {
-    const user = await getDefaultUser()
+    const user = await requireUser()
     const updated = await archiveItem(user.id, parsed.data)
     if (!updated) {
       return { ok: false, error: "Item not found." }
@@ -120,7 +120,7 @@ export async function unarchiveItemAction(
   }
 
   try {
-    const user = await getDefaultUser()
+    const user = await requireUser()
     const updated = await unarchiveItem(user.id, parsed.data)
     if (!updated) {
       return { ok: false, error: "Item not found." }
@@ -141,7 +141,7 @@ export async function deleteItemAction(
   }
 
   try {
-    const user = await getDefaultUser()
+    const user = await requireUser()
     const deleted = await deleteItem(user.id, parsed.data)
     if (!deleted) {
       return { ok: false, error: "Item not found." }
