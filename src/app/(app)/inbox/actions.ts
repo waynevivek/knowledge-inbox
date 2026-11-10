@@ -36,6 +36,16 @@ export async function createItemAction(
   _prevState: CaptureFormState,
   formData: FormData
 ): Promise<CaptureFormState> {
+  let user: Awaited<ReturnType<typeof requireUser>>
+  try {
+    user = await requireUser()
+  } catch {
+    return {
+      status: "error",
+      message: "Unauthorized. Please sign in again.",
+    }
+  }
+
   const rawType = formData.get("type")
   const rawTitle = formData.get("title")
   const title = typeof rawTitle === "string" ? rawTitle : undefined
@@ -75,7 +85,6 @@ export async function createItemAction(
   }
 
   try {
-    const user = await requireUser()
     await createItem(user.id, parsed.data)
     revalidateItemViews()
     return {
@@ -90,65 +99,61 @@ export async function createItemAction(
   }
 }
 
-export async function archiveItemAction(
-  rawItemId: string
+async function runItemByIdMutation(
+  rawItemId: string,
+  mutate: (userId: string, itemId: string) => Promise<unknown>,
+  failureMessage: string
 ): Promise<ItemMutationResult> {
+  let user: Awaited<ReturnType<typeof requireUser>>
+  try {
+    user = await requireUser()
+  } catch {
+    return { ok: false, error: "Unauthorized." }
+  }
+
   const parsed = itemIdSchema.safeParse(rawItemId)
   if (!parsed.success) {
     return { ok: false, error: "Invalid item ID." }
   }
 
   try {
-    const user = await requireUser()
-    const updated = await archiveItem(user.id, parsed.data)
-    if (!updated) {
+    const outcome = await mutate(user.id, parsed.data)
+    if (!outcome) {
       return { ok: false, error: "Item not found." }
     }
     revalidateItemViews()
     return { ok: true }
   } catch {
-    return { ok: false, error: "Failed to archive item." }
+    return { ok: false, error: failureMessage }
   }
+}
+
+export async function archiveItemAction(
+  rawItemId: string
+): Promise<ItemMutationResult> {
+  return runItemByIdMutation(
+    rawItemId,
+    archiveItem,
+    "Failed to archive item."
+  )
 }
 
 export async function unarchiveItemAction(
   rawItemId: string
 ): Promise<ItemMutationResult> {
-  const parsed = itemIdSchema.safeParse(rawItemId)
-  if (!parsed.success) {
-    return { ok: false, error: "Invalid item ID." }
-  }
-
-  try {
-    const user = await requireUser()
-    const updated = await unarchiveItem(user.id, parsed.data)
-    if (!updated) {
-      return { ok: false, error: "Item not found." }
-    }
-    revalidateItemViews()
-    return { ok: true }
-  } catch {
-    return { ok: false, error: "Failed to move item to inbox." }
-  }
+  return runItemByIdMutation(
+    rawItemId,
+    unarchiveItem,
+    "Failed to move item to inbox."
+  )
 }
 
 export async function deleteItemAction(
   rawItemId: string
 ): Promise<ItemMutationResult> {
-  const parsed = itemIdSchema.safeParse(rawItemId)
-  if (!parsed.success) {
-    return { ok: false, error: "Invalid item ID." }
-  }
-
-  try {
-    const user = await requireUser()
-    const deleted = await deleteItem(user.id, parsed.data)
-    if (!deleted) {
-      return { ok: false, error: "Item not found." }
-    }
-    revalidateItemViews()
-    return { ok: true }
-  } catch {
-    return { ok: false, error: "Failed to delete item." }
-  }
+  return runItemByIdMutation(
+    rawItemId,
+    deleteItem,
+    "Failed to delete item."
+  )
 }

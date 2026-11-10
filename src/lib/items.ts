@@ -94,9 +94,10 @@ export async function createItem(
   })
 }
 
-export async function archiveItem(
+async function setItemStatus(
   userId: string,
-  itemId: string
+  itemId: string,
+  status: ItemStatus
 ): Promise<Item | null> {
   const db = getDb()
   const updated = await db.item.updateMany({
@@ -105,7 +106,7 @@ export async function archiveItem(
       userId,
     },
     data: {
-      status: ItemStatus.ARCHIVED,
+      status,
     },
   })
 
@@ -116,26 +117,18 @@ export async function archiveItem(
   return getItemById(userId, itemId)
 }
 
+export async function archiveItem(
+  userId: string,
+  itemId: string
+): Promise<Item | null> {
+  return setItemStatus(userId, itemId, ItemStatus.ARCHIVED)
+}
+
 export async function unarchiveItem(
   userId: string,
   itemId: string
 ): Promise<Item | null> {
-  const db = getDb()
-  const updated = await db.item.updateMany({
-    where: {
-      id: itemId,
-      userId,
-    },
-    data: {
-      status: ItemStatus.INBOX,
-    },
-  })
-
-  if (updated.count === 0) {
-    return null
-  }
-
-  return getItemById(userId, itemId)
+  return setItemStatus(userId, itemId, ItemStatus.INBOX)
 }
 
 export async function deleteItem(

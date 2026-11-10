@@ -7,11 +7,15 @@ import { resetDbForTesting } from "@/lib/db"
 net.setDefaultAutoSelectFamilyAttemptTimeout(5000)
 neonConfig.webSocketConstructor = ws
 
+const INITIAL_DATABASE_URL = process.env.DATABASE_URL
+
 export function assertSafeTestDatabaseEnv(
   env: Record<string, string | undefined> = process.env
 ): string {
   const testUrl = env.TEST_DATABASE_URL?.trim()
-  const primaryUrl = env.DATABASE_URL?.trim()
+  const primaryUrl = (
+    env === process.env ? INITIAL_DATABASE_URL : env.DATABASE_URL
+  )?.trim()
 
   if (!testUrl) {
     throw new Error(

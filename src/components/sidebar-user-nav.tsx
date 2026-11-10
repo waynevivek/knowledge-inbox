@@ -1,9 +1,8 @@
 "use client"
 
 import * as React from "react"
-import Link from "next/link"
 import { useRouter } from "next/navigation"
-import { Loader2, LogIn, LogOut, UserRound } from "lucide-react"
+import { Loader2, LogOut, UserRound } from "lucide-react"
 
 import {
   SidebarMenu,
@@ -47,18 +46,7 @@ export function SidebarUserNav() {
   }
 
   if (!session?.user) {
-    return (
-      <SidebarMenu>
-        <SidebarMenuItem>
-          <SidebarMenuButton asChild tooltip="Sign in">
-            <Link href="/sign-in">
-              <LogIn />
-              <span>Sign in</span>
-            </Link>
-          </SidebarMenuButton>
-        </SidebarMenuItem>
-      </SidebarMenu>
-    )
+    return null
   }
 
   const displayName = session.user.name || session.user.email

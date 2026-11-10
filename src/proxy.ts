@@ -15,13 +15,9 @@ export function proxy(request: NextRequest) {
     return NextResponse.redirect(new URL("/sign-in", request.url))
   }
 
-  if (pathname === "/sign-in" && sessionCookie) {
-    return NextResponse.redirect(new URL("/inbox", request.url))
-  }
-
   return NextResponse.next()
 }
 
 export const config = {
-  matcher: ["/inbox/:path*", "/all/:path*", "/archived/:path*", "/sign-in"],
+  matcher: ["/inbox/:path*", "/all/:path*", "/archived/:path*"],
 }
